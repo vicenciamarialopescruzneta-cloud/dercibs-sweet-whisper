@@ -57,7 +57,7 @@ export const PRODUCTS: Product[] = [
     name: "Casadinho",
     category: "bolo",
     description: "O clássico encontro do brigadeiro com o creme de Ninho.",
-    image: PHOTOS.casadinho,
+    image: PHOTOS.casadinhoNovo,
   },
   {
     id: "bolo-maracuja",
