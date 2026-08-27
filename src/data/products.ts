@@ -9,9 +9,10 @@ const PHOTOS = {
   casadinho: "/__l5e/assets-v1/0c9a2c4e-0373-4aa9-a29f-3ca2df50e740/image.png",
   ninho: "/__l5e/assets-v1/d6448ec3-9e3f-46bc-a9cc-2b25af5ecd44/image-2.png",
   chocolate: "/__l5e/assets-v1/a3d97cc1-8044-4c94-aecc-f9cc203d4c0a/image-3.png",
-  oreo: "/__l5e/assets-v1/6ab0b1d7-71da-4c1e-a31e-e8fe36e42c8c/image-4.png",
+  oreo: "/__l5e/assets-v1/765ad27b-cfa2-4b1e-bb29-b3274b368984/image-7.png",
   morango: "/__l5e/assets-v1/4c29c2a9-2ddb-4d7d-99d6-3d27ffd91c8d/image-5.png",
   maracujaTorta: "/__l5e/assets-v1/e897b1e5-671a-4a6d-b826-0cae1e649378/image-6.png",
+  casadinhoNovo: "/__l5e/assets-v1/d8d132b2-43c5-43a0-92eb-b0029e51d1f4/image-8.png",
 };
 
 export type CategoryId = "bolo" | "torta" | "especiais";
@@ -56,7 +57,7 @@ export const PRODUCTS: Product[] = [
     name: "Casadinho",
     category: "bolo",
     description: "O clássico encontro do brigadeiro com o creme de Ninho.",
-    image: PHOTOS.casadinho,
+    image: PHOTOS.casadinhoNovo,
   },
   {
     id: "bolo-maracuja",
