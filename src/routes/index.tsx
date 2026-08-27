@@ -1,24 +1,131 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Heart, Sparkles } from "lucide-react";
+import { Bee } from "@/components/bee";
+import { BRAND_NAME } from "@/lib/constants";
+import { useStore } from "@/lib/store";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "Dercibs Doces — Cardápio digital de bolos e tortas no pote" },
+      {
+        name: "description",
+        content:
+          "Monte seu pedido de bolos e tortas no pote da Dercibs Doces e envie direto pelo WhatsApp. Sabores artesanais nos tamanhos 200ml e 250ml.",
+      },
+      { property: "og:title", content: "Dercibs Doces — Cardápio digital" },
+      {
+        property: "og:description",
+        content:
+          "Bolos e tortas no pote feitos com carinho. Escolha o sabor, o tamanho e envie seu pedido pelo WhatsApp.",
+      },
+    ],
+  }),
+  component: WelcomePage,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function WelcomePage() {
+  const { customer, setCustomer, hydrated } = useStore();
+  const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [remember, setRemember] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (customer?.name) {
+      setName(customer.name);
+      setPhone(customer.phone);
+      setRemember(customer.remember);
+    }
+  }, [customer]);
+
+  function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    const trimmed = name.trim();
+    if (trimmed.length < 2) {
+      setError("Por favor, conte pra gente o seu nome 💗");
+      return;
+    }
+    setError("");
+    setCustomer({ name: trimmed, phone: phone.trim(), remember });
+    navigate({ to: "/cardapio" });
+  }
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-5 py-10">
+      <div className="pointer-events-none absolute -top-16 -left-16 size-64 rounded-full bg-primary/10 blur-2xl" />
+      <div className="pointer-events-none absolute -right-20 bottom-0 size-72 rounded-full bg-accent/20 blur-3xl" />
+
+      <div className="animate-rise w-full max-w-sm">
+        <div className="flex flex-col items-center text-center">
+          <Bee size={120} motion="fly" />
+          <h1 className="mt-2 font-display text-4xl font-extrabold text-foreground">
+            {BRAND_NAME}
+          </h1>
+          <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+            <Sparkles className="size-4 text-primary" />
+            doces artesanais feitos com amor
+            <Heart className="size-4 fill-primary text-primary" />
+          </p>
+        </div>
+
+        <form
+          onSubmit={handleSubmit}
+          className="mt-8 space-y-4 rounded-3xl bg-card p-6 shadow-card"
+        >
+          <div className="space-y-1.5">
+            <label htmlFor="name" className="text-sm font-bold text-foreground">
+              Seu nome *
+            </label>
+            <input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={60}
+              autoComplete="name"
+              placeholder="Ex.: Maria"
+              className="min-h-13 w-full rounded-2xl border border-input bg-secondary/50 px-4 text-base text-foreground placeholder:text-muted-foreground/70 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
+            />
+            {error && <p className="text-sm font-semibold text-destructive">{error}</p>}
+          </div>
+
+          <div className="space-y-1.5">
+            <label htmlFor="phone" className="text-sm font-bold text-foreground">
+              WhatsApp <span className="font-normal text-muted-foreground">(opcional)</span>
+            </label>
+            <input
+              id="phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              maxLength={20}
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="(00) 00000-0000"
+              className="min-h-13 w-full rounded-2xl border border-input bg-secondary/50 px-4 text-base text-foreground placeholder:text-muted-foreground/70 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
+            />
+          </div>
+
+          <label className="flex min-h-11 items-center gap-3 text-sm font-semibold text-foreground">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="size-5 accent-[var(--primary)]"
+            />
+            Lembrar meu nome
+          </label>
+
+          <button
+            type="submit"
+            disabled={!hydrated}
+            className="min-h-13 w-full rounded-full bg-primary px-6 text-base font-bold text-primary-foreground shadow-soft transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-60"
+          >
+            Ver o cardápio 🍰
+          </button>
+        </form>
+      </div>
+    </main>
   );
 }
