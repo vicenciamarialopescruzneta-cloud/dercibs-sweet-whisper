@@ -1,5 +1,23 @@
-import { WHATSAPP_NUMBER, BRAND_NAME, formatBRL } from "@/lib/constants";
+import { WHATSAPP_NUMBER, formatBRL } from "@/lib/constants";
 import type { CartItem, Customer } from "@/lib/store";
+
+const DIVIDER = "━━━━━━━━━━━━━━";
+
+export function validateOrder(customer: Customer | null, items: CartItem[]) {
+  if (!customer?.name?.trim()) return "Digite seu nome para continuar 💕";
+  if (items.length === 0) return "Seu carrinho está vazio 💕";
+  const incomplete = items.some(
+    (i) =>
+      !i.productName ||
+      !i.categoryName ||
+      !i.sizeLabel ||
+      !i.quantity ||
+      i.quantity < 1 ||
+      !i.unitPrice,
+  );
+  if (incomplete) return "Alguns itens estão incompletos. Refaça a escolha, por favor 💕";
+  return null;
+}
 
 export function buildOrderMessage(
   customer: Customer | null,
@@ -7,21 +25,25 @@ export function buildOrderMessage(
   total: number,
 ) {
   const lines: string[] = [];
-  lines.push(`*Novo pedido — ${BRAND_NAME}* 🐝`);
+  lines.push("Olá, Dercibs Doces! 💕");
   lines.push("");
-  lines.push(`*Cliente:* ${customer?.name ?? "Cliente"}`);
-  if (customer?.phone) lines.push(`*WhatsApp:* ${customer.phone}`);
+  lines.push(`Me chamo ${customer?.name?.trim() ?? "Cliente"}.`);
   lines.push("");
-  lines.push("*Itens:*");
+  lines.push("Gostaria de fazer o seguinte pedido:");
+  lines.push("");
+  lines.push("🍰 MEU PEDIDO");
+  lines.push("");
   for (const item of items) {
     lines.push(
-      `• ${item.quantity}x ${item.categoryName} ${item.productName} — ${item.sizeLabel} — ${formatBRL(item.quantity * item.unitPrice)}`,
+      `• ${item.quantity}x ${item.categoryName} — ${item.productName} — ${item.sizeLabel} — ${formatBRL(item.quantity * item.unitPrice)}`,
     );
   }
   lines.push("");
-  lines.push(`*Total: ${formatBRL(total)}*`);
+  lines.push(DIVIDER);
   lines.push("");
-  lines.push("Obrigada pelo carinho! 💗");
+  lines.push(`💰 TOTAL DO PEDIDO: ${formatBRL(total)}`);
+  lines.push("");
+  lines.push("Aguardo a confirmação do meu pedido! 💕🍰");
   return lines.join("\n");
 }
 
