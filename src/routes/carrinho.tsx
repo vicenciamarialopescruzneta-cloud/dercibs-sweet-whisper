@@ -5,7 +5,8 @@ import { AppHeader } from "@/components/app-header";
 import { Bee } from "@/components/bee";
 import { formatBRL } from "@/lib/constants";
 import { useStore } from "@/lib/store";
-import { buildOrderMessage, buildWhatsAppUrl } from "@/lib/whatsapp";
+import { buildOrderMessage, buildWhatsAppUrl, validateOrder } from "@/lib/whatsapp";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/carrinho")({
   head: () => ({
@@ -36,8 +37,21 @@ function CartPage() {
   }, [hydrated, customer, navigate]);
 
   function handleSend() {
-    const url = buildWhatsAppUrl(buildOrderMessage(customer, items, total));
-    window.open(url, "_blank", "noopener,noreferrer");
+    const error = validateOrder(customer, items);
+    if (error) {
+      toast.error(error);
+      return;
+    }
+    try {
+      const url = buildWhatsAppUrl(buildOrderMessage(customer, items, total));
+      const opened = window.open(url, "_blank", "noopener,noreferrer");
+      if (!opened) window.location.href = url;
+      toast.success("Seu pedido está sendo preparado para envio pelo WhatsApp 💕");
+    } catch {
+      toast.error(
+        "Não conseguimos abrir o WhatsApp automaticamente. Verifique se o WhatsApp está instalado ou tente novamente.",
+      );
+    }
   }
 
   return (
