@@ -1,19 +1,18 @@
-import boloMaracuja from "@/assets/bolo-maracuja.jpg";
-import boloAbacaxiCoco from "@/assets/bolo-abacaxi-coco.jpg";
-import tortaLimao from "@/assets/torta-limao.jpg";
-import tortaAbacaxi from "@/assets/torta-abacaxi.jpg";
-import surpresaUva from "@/assets/surpresa-uva.jpg";
-
 /** Fotos reais enviadas pela loja. */
 const PHOTOS = {
-  casadinho: "/__l5e/assets-v1/0c9a2c4e-0373-4aa9-a29f-3ca2df50e740/image.png",
-  ninho: "/__l5e/assets-v1/d6448ec3-9e3f-46bc-a9cc-2b25af5ecd44/image-2.png",
-  chocolate: "/__l5e/assets-v1/a3d97cc1-8044-4c94-aecc-f9cc203d4c0a/image-3.png",
-  oreo: "/__l5e/assets-v1/765ad27b-cfa2-4b1e-bb29-b3274b368984/image-7.png",
-  morango: "/__l5e/assets-v1/4c29c2a9-2ddb-4d7d-99d6-3d27ffd91c8d/image-5.png",
-  maracujaTorta: "/__l5e/assets-v1/e897b1e5-671a-4a6d-b826-0cae1e649378/image-6.png",
-  casadinhoNovo: "/__l5e/assets-v1/d8d132b2-43c5-43a0-92eb-b0029e51d1f4/image-8.png",
+  chocolate: "/__l5e/assets-v1/8c6240cc-b9a5-4a0a-a1df-206f68274689/real-choco.jpg",
+  ninho: "/__l5e/assets-v1/8d467c12-60a9-4fa7-9579-a2b3d49c2406/real-ninho.jpg",
+  casadinho: "/__l5e/assets-v1/cc6e5681-2b1a-46c5-8d81-43f88dd2a4a0/real-casadinho.jpg",
+  maracujaBolo: "/__l5e/assets-v1/8cbd334f-84fd-4a92-87e0-06f3b3d58936/real-maracuja-bolo.jpg",
+  abacaxiCoco: "/__l5e/assets-v1/1ae6746e-b4c7-4847-8da6-8f193402007c/real-abacaxi-coco.jpg",
+  limao: "/__l5e/assets-v1/2bc583b2-089e-4305-a65c-6ef127424092/real-limao.jpg",
+  maracujaTorta: "/__l5e/assets-v1/ca7aa9e6-4bdb-4874-8955-0e0017af63f5/real-maracuja-torta.jpg",
+  abacaxi: "/__l5e/assets-v1/ff8f7b9b-ab3c-4682-93c1-2f57be20f99f/real-abacaxi.jpg",
+  morango: "/__l5e/assets-v1/b6da3a46-26c2-49be-be1c-3d1997ac060b/real-morango.jpg",
+  oreo: "/__l5e/assets-v1/0703a1bb-c18b-4baa-a594-804b47b3fc51/real-oreo.jpg",
+  uva: "/__l5e/assets-v1/29d8c018-cfbc-4afd-a167-0631042a0ba6/real-uva.jpg",
 };
+
 
 export type CategoryId = "bolo" | "torta" | "especiais";
 
@@ -57,28 +56,28 @@ export const PRODUCTS: Product[] = [
     name: "Casadinho",
     category: "bolo",
     description: "O clássico encontro do brigadeiro com o creme de Ninho.",
-    image: PHOTOS.casadinhoNovo,
+    image: PHOTOS.casadinho,
   },
   {
     id: "bolo-maracuja",
     name: "Maracujá",
     category: "bolo",
     description: "Creme delicado de maracujá com calda da fruta por cima.",
-    image: boloMaracuja,
+    image: PHOTOS.maracujaBolo,
   },
   {
     id: "bolo-abacaxi-coco",
     name: "Abacaxi com Coco",
     category: "bolo",
     description: "Abacaxi caramelizado, creme branco e coco fresquinho.",
-    image: boloAbacaxiCoco,
+    image: PHOTOS.abacaxiCoco,
   },
   {
     id: "torta-limao",
     name: "Limão",
     category: "torta",
     description: "Base crocante de biscoito com creme cítrico de limão.",
-    image: tortaLimao,
+    image: PHOTOS.limao,
   },
   {
     id: "torta-maracuja",
@@ -92,7 +91,7 @@ export const PRODUCTS: Product[] = [
     name: "Abacaxi",
     category: "torta",
     description: "Creme suave com pedaços doces de abacaxi.",
-    image: tortaAbacaxi,
+    image: PHOTOS.abacaxi,
   },
   {
     id: "torta-morango",
@@ -113,6 +112,6 @@ export const PRODUCTS: Product[] = [
     name: "Surpresa de Uva",
     category: "especiais",
     description: "Uvas fresquinhas envolvidas em creme e calda de uva.",
-    image: surpresaUva,
+    image: PHOTOS.uva,
   },
 ];
