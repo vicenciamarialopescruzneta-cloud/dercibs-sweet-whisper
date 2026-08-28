@@ -2,7 +2,7 @@
  * Configurações centrais da Dercibs Doces.
  * Altere o número abaixo para o WhatsApp oficial da loja (formato internacional, só dígitos).
  */
-export const WHATSAPP_NUMBER = "5511999999999";
+export const WHATSAPP_NUMBER = "559885175955";
 
 export const BRAND_NAME = "Dercibs Doces";
 
