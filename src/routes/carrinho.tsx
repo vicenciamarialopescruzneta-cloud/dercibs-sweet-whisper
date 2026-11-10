@@ -197,7 +197,7 @@ function CartPage() {
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
               Se quiser, permita o acesso ao GPS para enviar seu ponto de localização junto com o pedido.
             </p>
-            {customerLocation && (
+            {customerLocation && typeof customerLocation.latitude === "number" && typeof customerLocation.longitude === "number" && (
               <a
                 className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary underline"
                 href={`https://www.google.com/maps?q=${customerLocation.latitude},${customerLocation.longitude}`}
@@ -206,6 +206,11 @@ function CartPage() {
               >
                 <MapPin className="size-4" /> Localização capturada — ver no mapa
               </a>
+            )}
+            {customerLocation && (customerLocation.address || customerLocation.city || customerLocation.neighborhood || customerLocation.reference) && (
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {[customerLocation.address, customerLocation.neighborhood, customerLocation.city, customerLocation.reference].filter(Boolean).join(" • ")}
+              </p>
             )}
             <Button
               type="button"
