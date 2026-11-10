@@ -1,15 +1,21 @@
-/** Fotos reais enviadas pela loja. */
+import chocolatePotes from "@/assets/chocolate_potes.jpg.asset.json";
+import oreoPotes from "@/assets/oreo_potes.jpg.asset.json";
+import maracujaTortaPotes from "@/assets/maracuja_torta_potes.jpg.asset.json";
+import maracujaBoloPotes from "@/assets/maracuja_bolo_potes.jpg.asset.json";
+import morangoPote from "@/assets/morango_pote.jpg.asset.json";
+
+/** Fotos reais enviadas pela loja; preservar as anteriores sem nova foto correspondente. */
 const PHOTOS = {
-  chocolate: "/__l5e/assets-v1/8c6240cc-b9a5-4a0a-a1df-206f68274689/real-choco.jpg",
+  chocolate: chocolatePotes.url,
   ninho: "/__l5e/assets-v1/8d467c12-60a9-4fa7-9579-a2b3d49c2406/real-ninho.jpg",
   casadinho: "/__l5e/assets-v1/cc6e5681-2b1a-46c5-8d81-43f88dd2a4a0/real-casadinho.jpg",
-  maracujaBolo: "/__l5e/assets-v1/8cbd334f-84fd-4a92-87e0-06f3b3d58936/real-maracuja-bolo.jpg",
+  maracujaBolo: maracujaBoloPotes.url,
   abacaxiCoco: "/__l5e/assets-v1/1ae6746e-b4c7-4847-8da6-8f193402007c/real-abacaxi-coco.jpg",
   limao: "/__l5e/assets-v1/2bc583b2-089e-4305-a65c-6ef127424092/real-limao.jpg",
-  maracujaTorta: "/__l5e/assets-v1/ca7aa9e6-4bdb-4874-8955-0e0017af63f5/real-maracuja-torta.jpg",
+  maracujaTorta: maracujaTortaPotes.url,
   abacaxi: "/__l5e/assets-v1/ff8f7b9b-ab3c-4682-93c1-2f57be20f99f/real-abacaxi.jpg",
-  morango: "/__l5e/assets-v1/b6da3a46-26c2-49be-be1c-3d1997ac060b/real-morango.jpg",
-  oreo: "/__l5e/assets-v1/0703a1bb-c18b-4baa-a594-804b47b3fc51/real-oreo.jpg",
+  morango: morangoPote.url,
+  oreo: oreoPotes.url,
   uva: "/__l5e/assets-v1/29d8c018-cfbc-4afd-a167-0631042a0ba6/real-uva.jpg",
 };
 
