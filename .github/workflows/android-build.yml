@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - android-capacitor
+      - main
 
 permissions:
   contents: read
