@@ -1,6 +1,6 @@
 # Ajustes pontuais Dercibs Doces
 
-- [x] Associar novas fotos aos sabores correspondentes e verificar todas as telas; seis sabores com novas fotos, fotos reais anteriores mantidas quando as novas não correspondem ou são duplicadas.
+- [x] Associar novas fotos aos sabores correspondentes e verificar todas as telas; cinco sabores com novas fotos, fotos reais anteriores mantidas quando as novas não correspondem ou são duplicadas.
 - [x] Melhorar contato e pedido no WhatsApp sem modificar preços ou carrinho; abertura única e mensagens personalizadas verificadas.
 - [ ] Incluir endereço e localização reais — aguardando informação da loja.
 - [ ] Implementar lembretes push reais com consentimento, prazo configurável e limite de frequência — bloqueado: conexão Firebase recusada; não simular, criar cadastros ou enviar lembretes.
