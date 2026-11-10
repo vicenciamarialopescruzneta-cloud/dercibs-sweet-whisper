@@ -3,6 +3,15 @@ import type { CartItem, Customer } from "@/lib/store";
 
 const DIVIDER = "━━━━━━━━━━━━━━";
 
+export interface CustomerLocation {
+  latitude?: number;
+  longitude?: number;
+  address?: string;
+  city?: string;
+  neighborhood?: string;
+  reference?: string;
+}
+
 export function validateOrder(customer: Customer | null, items: CartItem[]) {
   if (!customer?.name?.trim()) return "Digite seu nome para continuar 💕";
   if (items.length === 0) return "Seu carrinho está vazio 💕";
@@ -23,6 +32,7 @@ export function buildOrderMessage(
   customer: Customer | null,
   items: CartItem[],
   total: number,
+  customerLocation?: CustomerLocation | null,
 ) {
   const lines: string[] = [];
   lines.push("Olá, Dercibs Doces! 💕");
@@ -44,13 +54,26 @@ export function buildOrderMessage(
   lines.push("");
   lines.push(`💰 TOTAL DO PEDIDO: ${formatBRL(total)}`);
   lines.push("");
-  lines.push("📍 RETIRADA E LOCALIZAÇÃO");
+  lines.push("📍 LOCALIZAÇÃO DA LOJA / RETIRADA");
   if (STORE_LOCATION.address) {
     lines.push(STORE_LOCATION.address);
     if (STORE_LOCATION.reference) lines.push(`Referência: ${STORE_LOCATION.reference}`);
     if (STORE_LOCATION.mapsUrl) lines.push(STORE_LOCATION.mapsUrl);
   } else {
     lines.push("Por favor, envie o endereço e um ponto de referência para a retirada.");
+  }
+  if (customerLocation) {
+    const hasAddress = [customerLocation.address, customerLocation.neighborhood, customerLocation.city, customerLocation.reference].some((value) => value?.trim());
+    const hasCoordinates = typeof customerLocation.latitude === "number" && typeof customerLocation.longitude === "number";
+    if (hasAddress || hasCoordinates) {
+      lines.push("");
+      lines.push("📍 LOCALIZAÇÃO DO CLIENTE / ENTREGA");
+      if (customerLocation.address?.trim()) lines.push(`Endereço: ${customerLocation.address.trim()}`);
+      if (customerLocation.neighborhood?.trim()) lines.push(`Bairro: ${customerLocation.neighborhood.trim()}`);
+      if (customerLocation.city?.trim()) lines.push(`Cidade: ${customerLocation.city.trim()}`);
+      if (customerLocation.reference?.trim()) lines.push(`Ponto de referência: ${customerLocation.reference.trim()}`);
+      if (hasCoordinates) lines.push(`GPS: https://www.google.com/maps?q=${customerLocation.latitude},${customerLocation.longitude}`);
+    }
   }
   lines.push("Por favor, confirme a disponibilidade dos sabores e o horário para retirada.");
   lines.push("");

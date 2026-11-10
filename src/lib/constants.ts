@@ -6,12 +6,16 @@ export const WHATSAPP_NUMBER = "559885175955";
 
 export const BRAND_NAME = "Dercibs Doces";
 
-// Só publicar endereço, referência e mapa quando confirmados pela loja.
+// Ponto informado pela loja: 4°07'57.6"S 43°19'06.8"W.
 export const STORE_LOCATION: {
   address: string | null;
   reference: string | null;
   mapsUrl: string | null;
-} = { address: null, reference: null, mapsUrl: null };
+} = {
+  address: 'Coordenadas: 4°07\'57.6"S, 43°19\'06.8"W',
+  reference: null,
+  mapsUrl: "https://www.google.com/maps?q=-4.1326667,-43.3185556",
+};
 
 export const WHATSAPP_DISPLAY = "+55 98 8517-5955";
 
