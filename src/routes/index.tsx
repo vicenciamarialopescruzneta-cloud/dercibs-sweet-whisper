@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Heart, Sparkles } from "lucide-react";
+import { Heart, LocateFixed, MapPin, Sparkles } from "lucide-react";
 import { Bee } from "@/components/bee";
 import { BRAND_NAME } from "@/lib/constants";
 import { useStore } from "@/lib/store-context";
@@ -34,6 +34,73 @@ function WelcomePage() {
   const [phone, setPhone] = useState("");
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
+  const [locationOpen, setLocationOpen] = useState(false);
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [neighborhood, setNeighborhood] = useState("");
+  const [reference, setReference] = useState("");
+  const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [locationSaved, setLocationSaved] = useState(false);
+  const [locating, setLocating] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("dercibs.customer-location.v1");
+      if (saved) {
+        const location = JSON.parse(saved) as { address?: string; city?: string; neighborhood?: string; reference?: string; latitude?: number; longitude?: number };
+        setAddress(location.address ?? "");
+        setCity(location.city ?? "");
+        setNeighborhood(location.neighborhood ?? "");
+        setReference(location.reference ?? "");
+        if (typeof location.latitude === "number" && typeof location.longitude === "number") {
+          setCoordinates({ latitude: location.latitude, longitude: location.longitude });
+        }
+        setLocationSaved(true);
+        setLocationOpen(true);
+      }
+    } catch {
+      localStorage.removeItem("dercibs.customer-location.v1");
+    }
+  }, []);
+
+  function handleGetLocation() {
+    if (!navigator.geolocation) {
+      setError("Seu navegador não oferece suporte à localização. Você pode preencher o endereço manualmente.");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setCoordinates({ latitude: coords.latitude, longitude: coords.longitude });
+        setLocating(false);
+        setError("");
+      },
+      (geoError) => {
+        setLocating(false);
+        setError(geoError.code === geoError.PERMISSION_DENIED
+          ? "Acesso ao GPS não autorizado. Se preferir, informe o endereço manualmente."
+          : "Não foi possível obter sua localização agora. Você pode preencher manualmente.");
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 },
+    );
+  }
+
+  function handleSaveLocation() {
+    const location = {
+      address: address.trim(),
+      city: city.trim(),
+      neighborhood: neighborhood.trim(),
+      reference: reference.trim(),
+      ...(coordinates ?? {}),
+    };
+    if (!location.address && !location.city && !location.neighborhood && !location.reference && !coordinates) {
+      setError("Informe um endereço ou use o GPS antes de salvar.");
+      return;
+    }
+    localStorage.setItem("dercibs.customer-location.v1", JSON.stringify(location));
+    setLocationSaved(true);
+    setError("");
+  }
 
   useEffect(() => {
     if (customer?.name) {
