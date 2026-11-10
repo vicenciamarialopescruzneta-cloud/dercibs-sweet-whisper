@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { SIZES, type SizeId } from "@/lib/constants";
+import { PRODUCTS } from "@/data/products";
 
 export interface CartItem {
   key: string;
@@ -64,7 +65,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const savedUser = readJSON<Customer>(USER_KEY);
     if (savedUser?.remember) setCustomerState(savedUser);
-    setItems(readJSON<CartItem[]>(CART_KEY) ?? []);
+    const savedItems = readJSON<CartItem[]>(CART_KEY) ?? [];
+    // Photo updates must also reach previously saved carts, without changing their quantities or prices.
+    setItems(savedItems.map((item) => {
+      const product = PRODUCTS.find((p) => p.id === item.productId);
+      return product ? { ...item, image: product.image } : item;
+    }));
     setHydrated(true);
   }, []);
 
@@ -85,7 +91,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addItem = useCallback<StoreValue["addItem"]>((item) => {
-    const size = SIZES.find((s) => s.id === item.sizeId)!;
+    const size = SIZES.find((s) => s.id === item.sizeId);
+    if (!size) return;
     const key = `${item.productId}-${item.sizeId}`;
     setItems((prev) => {
       const existing = prev.find((i) => i.key === key);
