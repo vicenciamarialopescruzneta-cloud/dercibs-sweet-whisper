@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Heart, Sparkles } from "lucide-react";
 import { Bee } from "@/components/bee";
 import { BRAND_NAME } from "@/lib/constants";
-import { useStore } from "@/lib/store";
+import { useStore } from "@/lib/store-context";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -20,6 +20,8 @@ export const Route = createFileRoute("/")({
         content:
           "Bolos e tortas no pote feitos com carinho. Escolha o sabor, o tamanho e envie seu pedido pelo WhatsApp.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: WelcomePage,

@@ -3,8 +3,10 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Minus, Plus, Trash2 } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { Bee } from "@/components/bee";
+import { Button } from "@/components/ui/button";
+import { StoreContact } from "@/components/store-contact";
 import { formatBRL } from "@/lib/constants";
-import { useStore } from "@/lib/store";
+import { useStore } from "@/lib/store-context";
 import { buildOrderMessage, buildWhatsAppUrl, validateOrder } from "@/lib/whatsapp";
 import { toast } from "sonner";
 
@@ -22,6 +24,8 @@ export const Route = createFileRoute("/carrinho")({
         property: "og:description",
         content: "Confira seu carrinho e finalize o pedido pelo WhatsApp.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: CartPage,
@@ -36,22 +40,16 @@ function CartPage() {
     if (hydrated && !customer) navigate({ to: "/" });
   }, [hydrated, customer, navigate]);
 
-  function handleSend() {
+  function handleSend(event: React.MouseEvent<HTMLAnchorElement>) {
     const error = validateOrder(customer, items);
     if (error) {
+      event.preventDefault();
       toast.error(error);
       return;
     }
-    try {
-      const url = buildWhatsAppUrl(buildOrderMessage(customer, items, total));
-      const opened = window.open(url, "_blank", "noopener,noreferrer");
-      if (!opened) window.location.href = url;
-      toast.success("Seu pedido está sendo preparado para envio pelo WhatsApp 💕");
-    } catch {
-      toast.error(
-        "Não conseguimos abrir o WhatsApp automaticamente. Verifique se o WhatsApp está instalado ou tente novamente.",
-      );
-    }
+    // A real user-initiated link opens once. window.open(noopener) returning null
+    // does not prove a blocked popup, so never follow it with a second navigation.
+    toast.success("Seu pedido está sendo preparado para envio pelo WhatsApp 💕");
   }
 
   return (
@@ -142,6 +140,7 @@ function CartPage() {
             ))}
           </ul>
         )}
+        <StoreContact />
       </main>
 
       {items.length > 0 && (
@@ -155,13 +154,19 @@ function CartPage() {
                 {formatBRL(total)}
               </span>
             </div>
-            <button
-              type="button"
-              onClick={handleSend}
+            <Button
+              asChild
               className="mt-3 min-h-13 w-full rounded-full bg-primary px-6 text-base font-bold text-primary-foreground shadow-soft transition-transform hover:scale-[1.02] active:scale-95"
             >
-              Fazer Pedido pelo WhatsApp 💬
-            </button>
+              <a
+                href={buildWhatsAppUrl(buildOrderMessage(customer, items, total))}
+                onClick={handleSend}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Fazer Pedido pelo WhatsApp 💬
+              </a>
+            </Button>
           </div>
         </div>
       )}

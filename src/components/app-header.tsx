@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Heart, ShoppingBag } from "lucide-react";
 import { Bee } from "@/components/bee";
-import { useStore } from "@/lib/store";
+import { useStore } from "@/lib/store-context";
 import { BRAND_NAME } from "@/lib/constants";
 
 export function AppHeader({ showCart = true }: { showCart?: boolean }) {

@@ -1,4 +1,4 @@
-import { WHATSAPP_NUMBER, formatBRL } from "@/lib/constants";
+import { BRAND_NAME, STORE_LOCATION, WHATSAPP_NUMBER, formatBRL } from "@/lib/constants";
 import type { CartItem, Customer } from "@/lib/store";
 
 const DIVIDER = "━━━━━━━━━━━━━━";
@@ -28,6 +28,7 @@ export function buildOrderMessage(
   lines.push("Olá, Dercibs Doces! 💕");
   lines.push("");
   lines.push(`Me chamo ${customer?.name?.trim() ?? "Cliente"}.`);
+  if (customer?.phone?.trim()) lines.push(`📱 Meu contato: ${customer.phone.trim()}`);
   lines.push("");
   lines.push("Gostaria de fazer o seguinte pedido:");
   lines.push("");
@@ -43,10 +44,33 @@ export function buildOrderMessage(
   lines.push("");
   lines.push(`💰 TOTAL DO PEDIDO: ${formatBRL(total)}`);
   lines.push("");
+  lines.push("📍 RETIRADA E LOCALIZAÇÃO");
+  if (STORE_LOCATION.address) {
+    lines.push(STORE_LOCATION.address);
+    if (STORE_LOCATION.reference) lines.push(`Referência: ${STORE_LOCATION.reference}`);
+    if (STORE_LOCATION.mapsUrl) lines.push(STORE_LOCATION.mapsUrl);
+  } else {
+    lines.push("Por favor, envie o endereço e um ponto de referência para a retirada.");
+  }
+  lines.push("Por favor, confirme a disponibilidade dos sabores e o horário para retirada.");
+  lines.push("");
   lines.push("Aguardo a confirmação do meu pedido! 💕🍰");
   return lines.join("\n");
 }
 
 export function buildWhatsAppUrl(message: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
+
+export function buildContactMessage(name?: string, topic: "contact" | "location" = "contact") {
+  const greeting = `Olá, ${BRAND_NAME}! 💕${name?.trim() ? ` Me chamo ${name.trim()}.` : ""}`;
+  return [
+    greeting,
+    "",
+    topic === "location"
+      ? "Gostaria de saber o endereço, o ponto de referência e o horário para retirada dos doces. Pode me enviar a localização?"
+      : "Gostaria de saber mais sobre os sabores disponíveis, os ingredientes e como combinar a retirada do meu pedido.",
+    "",
+    "Obrigada(o)! 🍰",
+  ].join("\n");
 }

@@ -1,51 +1,17 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
-import { SIZES, type SizeId } from "@/lib/constants";
-
-export interface CartItem {
-  key: string;
-  productId: string;
-  productName: string;
-  categoryName: string;
-  sizeId: SizeId;
-  sizeLabel: string;
-  unitPrice: number;
-  quantity: number;
-  image: string;
-}
-
-export interface Customer {
-  name: string;
-  phone: string;
-  remember: boolean;
-}
+import { SIZES } from "@/lib/constants";
+import { PRODUCTS } from "@/data/products";
+import { StoreContext, type CartItem, type Customer, type StoreValue } from "@/lib/store-context";
+export type { CartItem, Customer } from "@/lib/store-context";
 
 const CART_KEY = "dercibs.cart.v1";
 const USER_KEY = "dercibs.customer.v1";
-
-interface StoreValue {
-  hydrated: boolean;
-  customer: Customer | null;
-  setCustomer: (c: Customer) => void;
-  clearCustomer: () => void;
-  items: CartItem[];
-  itemCount: number;
-  total: number;
-  addItem: (item: Omit<CartItem, "key" | "unitPrice" | "sizeLabel">) => void;
-  increment: (key: string) => void;
-  decrement: (key: string) => void;
-  removeItem: (key: string) => void;
-  clearCart: () => void;
-}
-
-const StoreContext = createContext<StoreValue | null>(null);
 
 function readJSON<T>(key: string): T | null {
   try {
@@ -64,7 +30,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const savedUser = readJSON<Customer>(USER_KEY);
     if (savedUser?.remember) setCustomerState(savedUser);
-    setItems(readJSON<CartItem[]>(CART_KEY) ?? []);
+    const savedItems = readJSON<CartItem[]>(CART_KEY) ?? [];
+    // Photo updates must also reach previously saved carts, without changing their quantities or prices.
+    setItems(savedItems.map((item) => {
+      const product = PRODUCTS.find((p) => p.id === item.productId);
+      return product ? { ...item, image: product.image } : item;
+    }));
     setHydrated(true);
   }, []);
 
@@ -85,7 +56,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addItem = useCallback<StoreValue["addItem"]>((item) => {
-    const size = SIZES.find((s) => s.id === item.sizeId)!;
+    const size = SIZES.find((s) => s.id === item.sizeId);
+    if (!size) return;
     const key = `${item.productId}-${item.sizeId}`;
     setItems((prev) => {
       const existing = prev.find((i) => i.key === key);
@@ -154,8 +126,3 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
 
-export function useStore() {
-  const ctx = useContext(StoreContext);
-  if (!ctx) throw new Error("useStore precisa estar dentro de StoreProvider");
-  return ctx;
-}

@@ -5,9 +5,10 @@ import { ShoppingBag } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { ProductCard } from "@/components/product-card";
 import { ProductDialog } from "@/components/product-dialog";
+import { StoreContact } from "@/components/store-contact";
 import { CATEGORIES, PRODUCTS, type Product } from "@/data/products";
 import { formatBRL } from "@/lib/constants";
-import { useStore } from "@/lib/store";
+import { useStore } from "@/lib/store-context";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/cardapio")({
@@ -24,6 +25,8 @@ export const Route = createFileRoute("/cardapio")({
         property: "og:description",
         content: "Sabores artesanais nos potes de 200ml e 250ml. Monte seu pedido agora.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: MenuPage,
@@ -88,6 +91,7 @@ function MenuPage() {
             />
           ))}
         </div>
+        <StoreContact />
       </main>
 
       <ProductDialog product={selected} onOpenChange={(open) => !open && setSelected(null)} />
