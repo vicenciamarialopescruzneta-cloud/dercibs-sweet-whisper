@@ -62,8 +62,20 @@ describe("WhatsApp order invariants", () => {
       latitude: -4.13,
       longitude: -43.31,
     });
-    assert.ok(!messageWithoutGps.includes("MINHA LOCALIZAÇÃO (CLIENTE)"));
+    assert.ok(!messageWithoutGps.includes("LOCALIZAÇÃO DO CLIENTE / ENTREGA"));
     assert.ok(messageWithGps.includes("https://www.google.com/maps?q=-4.13,-43.31"));
+  });
+  it("includes the customer's manually saved delivery address", () => {
+    const message = buildOrderMessage(maria, [item("Chocolate", "200", 1)], 10, {
+      address: "Rua das Flores, 123",
+      city: "Afonso Cunha",
+      neighborhood: "Centro",
+      reference: "Próximo à praça",
+    });
+    assert.ok(message.includes("Endereço: Rua das Flores, 123"));
+    assert.ok(message.includes("Cidade: Afonso Cunha"));
+    assert.ok(message.includes("Bairro: Centro"));
+    assert.ok(message.includes("Ponto de referência: Próximo à praça"));
   });
   it("uses optional phone and keeps the location contact message", () => {
     const message = buildOrderMessage({ ...maria, phone: "(98) 99999-1111" }, [item("Chocolate", "200", 1)], 10);
