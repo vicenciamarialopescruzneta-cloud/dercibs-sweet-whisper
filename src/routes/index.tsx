@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Geolocation } from "@capacitor/geolocation";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Heart, LocateFixed, MapPin, Sparkles } from "lucide-react";
 import { Bee } from "@/components/bee";
@@ -63,26 +64,30 @@ function WelcomePage() {
     }
   }, []);
 
-  function handleGetLocation() {
-    if (!navigator.geolocation) {
-      setError("Seu navegador não oferece suporte à localização. Você pode preencher o endereço manualmente.");
-      return;
-    }
+  async function handleGetLocation() {
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        setCoordinates({ latitude: coords.latitude, longitude: coords.longitude });
-        setLocating(false);
-        setError("");
-      },
-      (geoError) => {
-        setLocating(false);
-        setError(geoError.code === geoError.PERMISSION_DENIED
+    setError("");
+    try {
+      // Capacitor routes this request through Android's native location permission flow.
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 60000,
+      });
+      setCoordinates({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      });
+    } catch (geoError) {
+      const message = geoError instanceof Error ? geoError.message : "";
+      setError(
+        /permission|denied/i.test(message)
           ? "Acesso ao GPS não autorizado. Se preferir, informe o endereço manualmente."
-          : "Não foi possível obter sua localização agora. Você pode preencher manualmente.");
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 },
-    );
+          : "Não foi possível obter sua localização agora. Confira o GPS e tente novamente ou preencha manualmente.",
+      );
+    } finally {
+      setLocating(false);
+    }
   }
 
   function handleSaveLocation() {
