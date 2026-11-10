@@ -4,8 +4,12 @@ import type { CartItem, Customer } from "@/lib/store";
 const DIVIDER = "━━━━━━━━━━━━━━";
 
 export interface CustomerLocation {
-  latitude: number;
-  longitude: number;
+  latitude?: number;
+  longitude?: number;
+  address?: string;
+  city?: string;
+  neighborhood?: string;
+  reference?: string;
 }
 
 export function validateOrder(customer: Customer | null, items: CartItem[]) {
@@ -59,10 +63,17 @@ export function buildOrderMessage(
     lines.push("Por favor, envie o endereço e um ponto de referência para a retirada.");
   }
   if (customerLocation) {
-    const customerMapsUrl = `https://www.google.com/maps?q=${customerLocation.latitude},${customerLocation.longitude}`;
-    lines.push("");
-    lines.push("📍 MINHA LOCALIZAÇÃO (CLIENTE)");
-    lines.push(customerMapsUrl);
+    const hasAddress = [customerLocation.address, customerLocation.neighborhood, customerLocation.city, customerLocation.reference].some((value) => value?.trim());
+    const hasCoordinates = typeof customerLocation.latitude === "number" && typeof customerLocation.longitude === "number";
+    if (hasAddress || hasCoordinates) {
+      lines.push("");
+      lines.push("📍 LOCALIZAÇÃO DO CLIENTE / ENTREGA");
+      if (customerLocation.address?.trim()) lines.push(`Endereço: ${customerLocation.address.trim()}`);
+      if (customerLocation.neighborhood?.trim()) lines.push(`Bairro: ${customerLocation.neighborhood.trim()}`);
+      if (customerLocation.city?.trim()) lines.push(`Cidade: ${customerLocation.city.trim()}`);
+      if (customerLocation.reference?.trim()) lines.push(`Ponto de referência: ${customerLocation.reference.trim()}`);
+      if (hasCoordinates) lines.push(`GPS: https://www.google.com/maps?q=${customerLocation.latitude},${customerLocation.longitude}`);
+    }
   }
   lines.push("Por favor, confirme a disponibilidade dos sabores e o horário para retirada.");
   lines.push("");
