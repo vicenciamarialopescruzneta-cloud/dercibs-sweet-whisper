@@ -1,4 +1,5 @@
-import { describe, expect, it } from "bun:test";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { SIZES, WHATSAPP_NUMBER, formatBRL } from "./constants";
 import { buildOrderMessage, buildContactMessage, buildWhatsAppUrl, validateOrder } from "./whatsapp";
 import type { CartItem } from "./store";
@@ -12,47 +13,47 @@ const maria = { name: "Maria", phone: "", remember: true };
 
 describe("WhatsApp order invariants", () => {
   it("prices remain 200ml = 10 and 250ml = 12", () => {
-    expect(SIZES.map(({ id, price }) => [id, price])).toEqual([["200", 10], ["250", 12]]);
+    assert.deepEqual(SIZES.map(({ id, price }) => [id, price]), [["200", 10], ["250", 12]]);
   });
   it("2 Chocolate 200ml subtotal is 20", () => {
     const chocolate = item("Chocolate", "200", 2);
     const subtotal = chocolate.quantity * chocolate.unitPrice;
-    expect(subtotal).toBe(20);
-    expect(buildOrderMessage(maria, [chocolate], subtotal)).toContain(`2x Bolo no Pote — Chocolate — 200ml — ${formatBRL(20)}`);
+    assert.equal(subtotal, 20);
+    assert.ok(buildOrderMessage(maria, [chocolate], subtotal).includes(`2x Bolo no Pote — Chocolate — 200ml — ${formatBRL(20)}`));
   });
   it("2 Chocolate and 1 Ninho give 32 with exactly both product lines", () => {
     const items = [item("Chocolate", "200", 2), item("Ninho", "250", 1)];
     const total = items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0);
-    expect(total).toBe(32);
+    assert.equal(total, 32);
     const message = buildOrderMessage(maria, items, total);
-    expect(message.split("\n").filter((s) => s.startsWith("• "))).toHaveLength(2);
-    expect(message).toContain(`TOTAL DO PEDIDO: ${formatBRL(32)}`);
+    assert.equal(message.split("\n").filter((s) => s.startsWith("• ")).length, 2);
+    assert.ok(message.includes(`TOTAL DO PEDIDO: ${formatBRL(32)}`));
   });
   it("3 Oreo 250ml give 36 preserving the real menu category", () => {
     const oreo = item("Oreo", "250", 3, "Torta no Pote");
-    expect(oreo.quantity * oreo.unitPrice).toBe(36);
-    expect(buildOrderMessage({ ...maria, name: "João" }, [oreo], 36)).toContain(`3x Torta no Pote — Oreo — 250ml — ${formatBRL(36)}`);
+    assert.equal(oreo.quantity * oreo.unitPrice, 36);
+    assert.ok(buildOrderMessage({ ...maria, name: "João" }, [oreo], 36).includes(`3x Torta no Pote — Oreo — 250ml — ${formatBRL(36)}`));
   });
   it("targets only the official number and preserves accents, emoji and line breaks", () => {
-    expect(WHATSAPP_NUMBER).toBe("559885175955");
+    assert.equal(WHATSAPP_NUMBER, "559885175955");
     const message = buildOrderMessage({ ...maria, name: "João" }, [item("Maracujá", "250", 1)], 12);
     const url = new URL(buildWhatsAppUrl(message));
-    expect(url.pathname).toBe("/559885175955");
-    expect(url.searchParams.get("text")).toBe(message);
+    assert.equal(url.pathname, "/559885175955");
+    assert.equal(url.searchParams.get("text"), message);
   });
   it("blocks missing names", () => {
-    expect(validateOrder({ ...maria, name: " " }, [item("Chocolate", "200", 1)])).not.toBeNull();
+    assert.notEqual(validateOrder({ ...maria, name: " " }, [item("Chocolate", "200", 1)]), null);
   });
   it("blocks empty carts", () => {
-    expect(validateOrder(maria, [])).not.toBeNull();
+    assert.notEqual(validateOrder(maria, []), null);
   });
   it("blocks incomplete order entries", () => {
-    expect(validateOrder(maria, [{ ...item("Chocolate", "200", 1), categoryName: "" }])).not.toBeNull();
+    assert.notEqual(validateOrder(maria, [{ ...item("Chocolate", "200", 1), categoryName: "" }]), null);
   });
   it("uses optional phone and requests unconfirmed location rather than inventing it", () => {
     const message = buildOrderMessage({ ...maria, phone: "(98) 99999-1111" }, [item("Chocolate", "200", 1)], 10);
-    expect(message).toContain("(98) 99999-1111");
-    expect(message).toContain("Por favor, envie o endereço");
-    expect(new URL(buildWhatsAppUrl(buildContactMessage("João", "location"))).searchParams.get("text")).toContain("João");
+    assert.ok(message.includes("(98) 99999-1111"));
+    assert.ok(message.includes("Por favor, envie o endereço"));
+    assert.ok(new URL(buildWhatsAppUrl(buildContactMessage("João", "location"))).searchParams.get("text")?.includes("João"));
   });
 });
