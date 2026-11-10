@@ -2,13 +2,14 @@ import chocolatePotes from "@/assets/chocolate_potes.jpg.asset.json";
 import oreoPotes from "@/assets/oreo_potes.jpg.asset.json";
 import maracujaTortaPotes from "@/assets/maracuja_torta_potes.jpg.asset.json";
 import maracujaBoloPotes from "@/assets/maracuja_bolo_potes.jpg.asset.json";
-import morangoPote from "@/assets/morango_pote.jpg.asset.json";
+import morangoPote from "@/assets/morango_foto.jpg.asset.json";
+import casadinhoPotes from "@/assets/casadinho_potes.jpg.asset.json";
 
 /** Fotos reais enviadas pela loja; preservar as anteriores sem nova foto correspondente. */
 const PHOTOS = {
   chocolate: chocolatePotes.url,
   ninho: "/__l5e/assets-v1/8d467c12-60a9-4fa7-9579-a2b3d49c2406/real-ninho.jpg",
-  casadinho: "/__l5e/assets-v1/cc6e5681-2b1a-46c5-8d81-43f88dd2a4a0/real-casadinho.jpg",
+  casadinho: casadinhoPotes.url,
   maracujaBolo: maracujaBoloPotes.url,
   abacaxiCoco: "/__l5e/assets-v1/1ae6746e-b4c7-4847-8da6-8f193402007c/real-abacaxi-coco.jpg",
   limao: "/__l5e/assets-v1/2bc583b2-089e-4305-a65c-6ef127424092/real-limao.jpg",
