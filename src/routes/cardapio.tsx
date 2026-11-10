@@ -6,7 +6,6 @@ import { AppHeader } from "@/components/app-header";
 import { ProductCard } from "@/components/product-card";
 import { ProductDialog } from "@/components/product-dialog";
 import { StoreContact } from "@/components/store-contact";
-import { NotificationSettings } from "@/components/notification-settings";
 import { CATEGORIES, PRODUCTS, type Product } from "@/data/products";
 import { formatBRL } from "@/lib/constants";
 import { useStore } from "@/lib/store";
@@ -93,7 +92,6 @@ function MenuPage() {
           ))}
         </div>
         <StoreContact />
-        <NotificationSettings />
       </main>
 
       <ProductDialog product={selected} onOpenChange={(open) => !open && setSelected(null)} />

@@ -8,3 +8,9 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Product photos use CDN asset pointers; saved carts resolve current photos from the catalog to keep image updates consistent without changing prices or quantities.
+- WhatsApp handoff uses a single native external link with an encoded cart message; a null popup handle is not a reliable blocked-popup signal.
+- Store address and maps links remain nullable until confirmed, so contact surfaces request location rather than publishing invented details.
+- Do not register push workers or claim notification activation before a real provider connection and durable opt-in/scheduling are implemented; the declined connection leaves that work pending.
+- Keep focused business-rule tests beside the WhatsApp helpers and run them with Bun's built-in test runner to avoid extra test dependencies.
