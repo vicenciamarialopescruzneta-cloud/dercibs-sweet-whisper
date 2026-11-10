@@ -38,12 +38,8 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          # The action's default package list includes the removed legacy `tools` package.
-          # Install only current SDK packages required by the Android build.
-          packages: |
-            platform-tools
-            platforms;android-35
-            build-tools;35.0.0
+          # Comma-separated list; the action splits package names on commas.
+          packages: "platform-tools, platforms;android-35, build-tools;35.0.0"
 
       - name: Generate Android project
         run: |
