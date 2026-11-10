@@ -47,6 +47,15 @@ function CartPage() {
     if (hydrated && !customer) navigate({ to: "/" });
   }, [hydrated, customer, navigate]);
 
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("dercibs.customer-location.v1");
+      if (saved) setCustomerLocation(JSON.parse(saved) as CustomerLocation);
+    } catch {
+      localStorage.removeItem("dercibs.customer-location.v1");
+    }
+  }, []);
+
   function handleGetLocation() {
     if (!navigator.geolocation) {
       toast.error("Este navegador não oferece suporte à localização.");
@@ -56,9 +65,10 @@ function CartPage() {
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
-        setCustomerLocation({
-          latitude: coords.latitude,
-          longitude: coords.longitude,
+        setCustomerLocation((previous) => {
+          const updated = { ...previous, latitude: coords.latitude, longitude: coords.longitude };
+          localStorage.setItem("dercibs.customer-location.v1", JSON.stringify(updated));
+          return updated;
         });
         setLocating(false);
         toast.success("Localização adicionada ao pedido 💕");
