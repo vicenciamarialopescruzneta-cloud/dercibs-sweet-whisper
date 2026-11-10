@@ -1,13 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Minus, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, LocateFixed, MapPin, Minus, Plus, Trash2 } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { Bee } from "@/components/bee";
 import { Button } from "@/components/ui/button";
 import { StoreContact } from "@/components/store-contact";
 import { formatBRL } from "@/lib/constants";
 import { useStore } from "@/lib/store-context";
-import { buildOrderMessage, buildWhatsAppUrl, validateOrder } from "@/lib/whatsapp";
+import {
+  buildOrderMessage,
+  buildWhatsAppUrl,
+  validateOrder,
+  type CustomerLocation,
+} from "@/lib/whatsapp";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/carrinho")({
@@ -35,10 +40,42 @@ function CartPage() {
   const { customer, hydrated, items, total, itemCount, increment, decrement, removeItem } =
     useStore();
   const navigate = useNavigate();
+  const [customerLocation, setCustomerLocation] = useState<CustomerLocation | null>(null);
+  const [locating, setLocating] = useState(false);
 
   useEffect(() => {
     if (hydrated && !customer) navigate({ to: "/" });
   }, [hydrated, customer, navigate]);
+
+  function handleGetLocation() {
+    if (!navigator.geolocation) {
+      toast.error("Este navegador não oferece suporte à localização.");
+      return;
+    }
+
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setCustomerLocation({
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        });
+        setLocating(false);
+        toast.success("Localização adicionada ao pedido 💕");
+      },
+      (error) => {
+        setLocating(false);
+        if (error.code === error.PERMISSION_DENIED) {
+          toast.error("Permita o acesso à localização no navegador para compartilhar seu ponto.");
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          toast.error("Não foi possível encontrar sua localização agora.");
+        } else {
+          toast.error("A localização demorou muito. Tente novamente.");
+        }
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 },
+    );
+  }
 
   function handleSend(event: React.MouseEvent<HTMLAnchorElement>) {
     const error = validateOrder(customer, items);
@@ -140,6 +177,39 @@ function CartPage() {
             ))}
           </ul>
         )}
+
+        {items.length > 0 && (
+          <section className="mt-6 rounded-3xl border border-border bg-card p-4 shadow-card">
+            <div className="flex items-center gap-2 font-bold text-foreground">
+              <LocateFixed className="size-5 text-primary" />
+              Compartilhar minha localização
+            </div>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+              Se quiser, permita o acesso ao GPS para enviar seu ponto de localização junto com o pedido.
+            </p>
+            {customerLocation && (
+              <a
+                className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary underline"
+                href={`https://www.google.com/maps?q=${customerLocation.latitude},${customerLocation.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MapPin className="size-4" /> Localização capturada — ver no mapa
+              </a>
+            )}
+            <Button
+              type="button"
+              variant="outline"
+              disabled={locating}
+              onClick={handleGetLocation}
+              className="mt-3 min-h-11 rounded-full border-primary px-5 font-bold text-primary"
+            >
+              <LocateFixed className="size-4" />
+              {locating ? "Localizando..." : customerLocation ? "Atualizar localização" : "Usar minha localização"}
+            </Button>
+          </section>
+        )}
+
         <StoreContact />
       </main>
 
@@ -159,7 +229,7 @@ function CartPage() {
               className="mt-3 min-h-13 w-full rounded-full bg-primary px-6 text-base font-bold text-primary-foreground shadow-soft transition-transform hover:scale-[1.02] active:scale-95"
             >
               <a
-                href={buildWhatsAppUrl(buildOrderMessage(customer, items, total))}
+                href={buildWhatsAppUrl(buildOrderMessage(customer, items, total, customerLocation))}
                 onClick={handleSend}
                 target="_blank"
                 rel="noopener noreferrer"
