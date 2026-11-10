@@ -13,4 +13,4 @@
 - WhatsApp handoff uses a single native external link with an encoded cart message; a null popup handle is not a reliable blocked-popup signal.
 - Store address and maps links remain nullable until confirmed, so contact surfaces request location rather than publishing invented details.
 - Do not register push workers or claim notification activation before a real provider connection and durable opt-in/scheduling are implemented; the declined connection leaves that work pending.
-- Keep focused business-rule tests beside the WhatsApp helpers and run them with Bun's built-in test runner to avoid extra test dependencies.
+- Keep focused business-rule tests beside the WhatsApp helpers, using node:test and node:assert through Bun to avoid extra test dependencies and missing Bun-specific TypeScript declarations.
