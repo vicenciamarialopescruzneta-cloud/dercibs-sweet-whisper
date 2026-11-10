@@ -3,6 +3,11 @@ import type { CartItem, Customer } from "@/lib/store";
 
 const DIVIDER = "━━━━━━━━━━━━━━";
 
+export interface CustomerLocation {
+  latitude: number;
+  longitude: number;
+}
+
 export function validateOrder(customer: Customer | null, items: CartItem[]) {
   if (!customer?.name?.trim()) return "Digite seu nome para continuar 💕";
   if (items.length === 0) return "Seu carrinho está vazio 💕";
@@ -23,6 +28,7 @@ export function buildOrderMessage(
   customer: Customer | null,
   items: CartItem[],
   total: number,
+  customerLocation?: CustomerLocation | null,
 ) {
   const lines: string[] = [];
   lines.push("Olá, Dercibs Doces! 💕");
@@ -44,13 +50,19 @@ export function buildOrderMessage(
   lines.push("");
   lines.push(`💰 TOTAL DO PEDIDO: ${formatBRL(total)}`);
   lines.push("");
-  lines.push("📍 RETIRADA E LOCALIZAÇÃO");
+  lines.push("📍 LOCALIZAÇÃO DA LOJA / RETIRADA");
   if (STORE_LOCATION.address) {
     lines.push(STORE_LOCATION.address);
     if (STORE_LOCATION.reference) lines.push(`Referência: ${STORE_LOCATION.reference}`);
     if (STORE_LOCATION.mapsUrl) lines.push(STORE_LOCATION.mapsUrl);
   } else {
     lines.push("Por favor, envie o endereço e um ponto de referência para a retirada.");
+  }
+  if (customerLocation) {
+    const customerMapsUrl = `https://www.google.com/maps?q=${customerLocation.latitude},${customerLocation.longitude}`;
+    lines.push("");
+    lines.push("📍 MINHA LOCALIZAÇÃO (CLIENTE)");
+    lines.push(customerMapsUrl);
   }
   lines.push("Por favor, confirme a disponibilidade dos sabores e o horário para retirada.");
   lines.push("");
