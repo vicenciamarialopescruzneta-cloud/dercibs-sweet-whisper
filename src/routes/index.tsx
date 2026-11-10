@@ -20,6 +20,8 @@ export const Route = createFileRoute("/")({
         content:
           "Bolos e tortas no pote feitos com carinho. Escolha o sabor, o tamanho e envie seu pedido pelo WhatsApp.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: WelcomePage,
