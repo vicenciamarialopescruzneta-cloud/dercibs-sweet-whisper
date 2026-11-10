@@ -6,7 +6,7 @@ import { Bee } from "@/components/bee";
 import { Button } from "@/components/ui/button";
 import { StoreContact } from "@/components/store-contact";
 import { formatBRL } from "@/lib/constants";
-import { useStore } from "@/lib/store";
+import { useStore } from "@/lib/store-context";
 import { buildOrderMessage, buildWhatsAppUrl, validateOrder } from "@/lib/whatsapp";
 import { toast } from "sonner";
 

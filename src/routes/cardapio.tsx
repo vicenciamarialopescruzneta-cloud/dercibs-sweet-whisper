@@ -8,7 +8,7 @@ import { ProductDialog } from "@/components/product-dialog";
 import { StoreContact } from "@/components/store-contact";
 import { CATEGORIES, PRODUCTS, type Product } from "@/data/products";
 import { formatBRL } from "@/lib/constants";
-import { useStore } from "@/lib/store";
+import { useStore } from "@/lib/store-context";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/cardapio")({

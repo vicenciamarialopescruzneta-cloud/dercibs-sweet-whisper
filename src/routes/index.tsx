@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Heart, Sparkles } from "lucide-react";
 import { Bee } from "@/components/bee";
 import { BRAND_NAME } from "@/lib/constants";
-import { useStore } from "@/lib/store";
+import { useStore } from "@/lib/store-context";
 
 export const Route = createFileRoute("/")({
   head: () => ({

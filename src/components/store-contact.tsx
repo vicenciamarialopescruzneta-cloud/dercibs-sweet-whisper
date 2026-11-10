@@ -1,7 +1,7 @@
 import { MapPin, MessageCircle, Phone, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { STORE_LOCATION, WHATSAPP_DISPLAY } from "@/lib/constants";
-import { useStore } from "@/lib/store";
+import { useStore } from "@/lib/store-context";
 import { buildContactMessage, buildWhatsAppUrl } from "@/lib/whatsapp";
 
 export function StoreContact() {
