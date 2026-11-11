@@ -38,8 +38,8 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          # Comma-separated list; the action splits package names on commas.
-          packages: "platform-tools, platforms;android-35, build-tools;35.0.0"
+          # Package IDs are space-separated for sdkmanager.
+          packages: "platform-tools platforms;android-35 build-tools;35.0.0"
 
       - name: Generate Android project
         run: |
