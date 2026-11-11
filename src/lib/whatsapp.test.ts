@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { SIZES, WHATSAPP_NUMBER, formatBRL } from "./constants";
+import { SIZES, STORE_LOCATION, WHATSAPP_NUMBER, formatBRL } from "./constants";
 import { buildOrderMessage, buildContactMessage, buildWhatsAppUrl, validateOrder } from "./whatsapp";
 import type { CartItem } from "./store";
 
@@ -50,10 +50,36 @@ describe("WhatsApp order invariants", () => {
   it("blocks incomplete order entries", () => {
     assert.notEqual(validateOrder(maria, [{ ...item("Chocolate", "200", 1), categoryName: "" }]), null);
   });
-  it("uses optional phone and requests unconfirmed location rather than inventing it", () => {
+  it("includes the store's confirmed coordinates and Google Maps link", () => {
+    const message = buildOrderMessage(maria, [item("Chocolate", "200", 1)], 10);
+    assert.ok(STORE_LOCATION.mapsUrl?.includes("-4.1326667,-43.3185556"));
+    assert.ok(message.includes("4°07'57.6\"S, 43°19'06.8\"W"));
+    assert.ok(message.includes(STORE_LOCATION.mapsUrl ?? ""));
+  });
+  it("adds the customer's GPS link only when the customer shares it", () => {
+    const messageWithoutGps = buildOrderMessage(maria, [item("Chocolate", "200", 1)], 10);
+    const messageWithGps = buildOrderMessage(maria, [item("Chocolate", "200", 1)], 10, {
+      latitude: -4.13,
+      longitude: -43.31,
+    });
+    assert.ok(!messageWithoutGps.includes("LOCALIZAÇÃO DO CLIENTE / ENTREGA"));
+    assert.ok(messageWithGps.includes("https://www.google.com/maps?q=-4.13,-43.31"));
+  });
+  it("includes the customer's manually saved delivery address", () => {
+    const message = buildOrderMessage(maria, [item("Chocolate", "200", 1)], 10, {
+      address: "Rua das Flores, 123",
+      city: "Afonso Cunha",
+      neighborhood: "Centro",
+      reference: "Próximo à praça",
+    });
+    assert.ok(message.includes("Endereço: Rua das Flores, 123"));
+    assert.ok(message.includes("Cidade: Afonso Cunha"));
+    assert.ok(message.includes("Bairro: Centro"));
+    assert.ok(message.includes("Ponto de referência: Próximo à praça"));
+  });
+  it("uses optional phone and keeps the location contact message", () => {
     const message = buildOrderMessage({ ...maria, phone: "(98) 99999-1111" }, [item("Chocolate", "200", 1)], 10);
     assert.ok(message.includes("(98) 99999-1111"));
-    assert.ok(message.includes("Por favor, envie o endereço"));
     assert.ok(new URL(buildWhatsAppUrl(buildContactMessage("João", "location"))).searchParams.get("text")?.includes("João"));
   });
 });

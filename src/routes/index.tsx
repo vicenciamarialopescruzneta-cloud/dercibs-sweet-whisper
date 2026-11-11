@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { Geolocation } from "@capacitor/geolocation";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Heart, Sparkles } from "lucide-react";
+import { Heart, LocateFixed, MapPin, Sparkles } from "lucide-react";
 import { Bee } from "@/components/bee";
 import { BRAND_NAME } from "@/lib/constants";
 import { useStore } from "@/lib/store-context";
@@ -34,6 +35,77 @@ function WelcomePage() {
   const [phone, setPhone] = useState("");
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
+  const [locationOpen, setLocationOpen] = useState(false);
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [neighborhood, setNeighborhood] = useState("");
+  const [reference, setReference] = useState("");
+  const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [locationSaved, setLocationSaved] = useState(false);
+  const [locating, setLocating] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("dercibs.customer-location.v1");
+      if (saved) {
+        const location = JSON.parse(saved) as { address?: string; city?: string; neighborhood?: string; reference?: string; latitude?: number; longitude?: number };
+        setAddress(location.address ?? "");
+        setCity(location.city ?? "");
+        setNeighborhood(location.neighborhood ?? "");
+        setReference(location.reference ?? "");
+        if (typeof location.latitude === "number" && typeof location.longitude === "number") {
+          setCoordinates({ latitude: location.latitude, longitude: location.longitude });
+        }
+        setLocationSaved(true);
+        setLocationOpen(true);
+      }
+    } catch {
+      localStorage.removeItem("dercibs.customer-location.v1");
+    }
+  }, []);
+
+  async function handleGetLocation() {
+    setLocating(true);
+    setError("");
+    try {
+      // Capacitor routes this request through Android's native location permission flow.
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 60000,
+      });
+      setCoordinates({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      });
+    } catch (geoError) {
+      const message = geoError instanceof Error ? geoError.message : "";
+      setError(
+        /permission|denied/i.test(message)
+          ? "Acesso ao GPS não autorizado. Se preferir, informe o endereço manualmente."
+          : "Não foi possível obter sua localização agora. Confira o GPS e tente novamente ou preencha manualmente.",
+      );
+    } finally {
+      setLocating(false);
+    }
+  }
+
+  function handleSaveLocation() {
+    const location = {
+      address: address.trim(),
+      city: city.trim(),
+      neighborhood: neighborhood.trim(),
+      reference: reference.trim(),
+      ...(coordinates ?? {}),
+    };
+    if (!location.address && !location.city && !location.neighborhood && !location.reference && !coordinates) {
+      setError("Informe um endereço ou use o GPS antes de salvar.");
+      return;
+    }
+    localStorage.setItem("dercibs.customer-location.v1", JSON.stringify(location));
+    setLocationSaved(true);
+    setError("");
+  }
 
   useEffect(() => {
     if (customer?.name) {
@@ -72,6 +144,43 @@ function WelcomePage() {
             <Heart className="size-4 fill-primary text-primary" />
           </p>
         </div>
+
+        <section className="mt-7 rounded-3xl border border-primary/20 bg-card/95 p-4 shadow-card">
+          <button
+            type="button"
+            onClick={() => setLocationOpen((open) => !open)}
+            className="flex min-h-12 w-full items-center gap-3 text-left"
+            aria-expanded={locationOpen}
+          >
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <MapPin className="size-5" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-bold text-foreground">Onde você está?</span>
+              <span className="block text-xs text-muted-foreground">Informe sua localização para facilitar a entrega (opcional)</span>
+            </span>
+            <span className="text-sm font-bold text-primary">{locationOpen ? "Fechar" : "Adicionar"}</span>
+          </button>
+          {locationOpen && (
+            <div className="mt-3 space-y-3 border-t border-border pt-4">
+              <button type="button" onClick={handleGetLocation} disabled={locating}
+                className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-primary px-4 text-sm font-bold text-primary disabled:opacity-60">
+                <LocateFixed className="size-4" /> {locating ? "Obtendo localização..." : coordinates ? "Atualizar localização pelo GPS" : "Usar localização atual do celular"}
+              </button>
+              {coordinates && <p className="text-xs font-semibold text-primary">GPS capturado. Você pode salvar junto com o endereço.</p>}
+              <p className="text-center text-xs text-muted-foreground">Ou preencha os dados manualmente</p>
+              <input value={address} onChange={(e) => setAddress(e.target.value)} maxLength={160} autoComplete="street-address" placeholder="Rua, número e complemento" className="min-h-11 w-full rounded-xl border border-input bg-secondary/50 px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:outline-none" />
+              <div className="grid grid-cols-2 gap-2">
+                <input value={city} onChange={(e) => setCity(e.target.value)} maxLength={80} autoComplete="address-level2" placeholder="Cidade" className="min-h-11 w-full rounded-xl border border-input bg-secondary/50 px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:outline-none" />
+                <input value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} maxLength={80} placeholder="Bairro" className="min-h-11 w-full rounded-xl border border-input bg-secondary/50 px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:outline-none" />
+              </div>
+              <input value={reference} onChange={(e) => setReference(e.target.value)} maxLength={120} placeholder="Ponto de referência (opcional)" className="min-h-11 w-full rounded-xl border border-input bg-secondary/50 px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:outline-none" />
+              <button type="button" onClick={handleSaveLocation} className="min-h-11 w-full rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground shadow-soft">Salvar minha localização</button>
+              {locationSaved && <p className="text-center text-xs font-semibold text-primary">Localização salva neste dispositivo ✓</p>}
+              <p className="text-center text-xs text-muted-foreground">Você pode pular esta opção. O GPS só é acessado quando você toca no botão e autoriza no navegador.</p>
+            </div>
+          )}
+        </section>
 
         <form
           onSubmit={handleSubmit}
