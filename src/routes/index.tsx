@@ -1,9 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Heart, Sparkles } from "lucide-react";
-import { Bee } from "@/components/bee";
+import dercibsLogo from "@/assets/dercibs_logo.png.asset.json";
+import { Button } from "@/components/ui/button";
+import { CustomerLocation } from "@/components/customer-location";
+import { WelcomeLoading } from "@/components/welcome-loading";
 import { BRAND_NAME } from "@/lib/constants";
 import { useStore } from "@/lib/store-context";
+import { scheduleMenuOpening, validateWelcomeDetails } from "@/lib/welcome-flow";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -34,6 +38,9 @@ function WelcomePage() {
   const [phone, setPhone] = useState("");
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [preparing, setPreparing] = useState(false);
+  const submitted = useRef(false);
 
   useEffect(() => {
     if (customer?.name) {
@@ -43,17 +50,32 @@ function WelcomePage() {
     }
   }, [customer]);
 
+  useEffect(() => {
+    if (!preparing) return;
+    return scheduleMenuOpening(() => { void navigate({ to: "/cardapio" }); });
+  }, [preparing, navigate]);
+
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+    if (!hydrated || submitted.current) return;
     const trimmed = name.trim();
-    if (trimmed.length < 2) {
+    const invalidField = validateWelcomeDetails(name, phone);
+    setError("");
+    setPhoneError("");
+    if (invalidField === "name") {
       setError("Por favor, conte pra gente o seu nome 💗");
       return;
     }
-    setError("");
+    if (invalidField === "phone") {
+      setPhoneError("Confira seu WhatsApp com DDD ou deixe o campo em branco 💗");
+      return;
+    }
     setCustomer({ name: trimmed, phone: phone.trim(), remember });
-    navigate({ to: "/cardapio" });
+    submitted.current = true;
+    setPreparing(true);
   }
+
+  if (preparing) return <WelcomeLoading />;
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-5 py-10">
@@ -62,7 +84,8 @@ function WelcomePage() {
 
       <div className="animate-rise w-full max-w-sm">
         <div className="flex flex-col items-center text-center">
-          <Bee size={120} motion="fly" />
+          <img src={dercibsLogo.url} alt={`Logo da ${BRAND_NAME}`} width={128} height={128}
+            className="size-32 object-contain" />
           <h1 className="mt-2 font-display text-4xl font-extrabold text-foreground">
             {BRAND_NAME}
           </h1>
@@ -72,6 +95,8 @@ function WelcomePage() {
             <Heart className="size-4 fill-primary text-primary" />
           </p>
         </div>
+
+        <CustomerLocation />
 
         <form
           onSubmit={handleSubmit}
@@ -89,8 +114,10 @@ function WelcomePage() {
               autoComplete="name"
               placeholder="Ex.: Maria"
               className="min-h-13 w-full rounded-2xl border border-input bg-secondary/50 px-4 text-base text-foreground placeholder:text-muted-foreground/70 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? "name-error" : undefined}
             />
-            {error && <p className="text-sm font-semibold text-destructive">{error}</p>}
+            {error && <p id="name-error" role="alert" className="text-sm font-semibold text-destructive">{error}</p>}
           </div>
 
           <div className="space-y-1.5">
@@ -106,7 +133,10 @@ function WelcomePage() {
               autoComplete="tel"
               placeholder="(00) 00000-0000"
               className="min-h-13 w-full rounded-2xl border border-input bg-secondary/50 px-4 text-base text-foreground placeholder:text-muted-foreground/70 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
+              aria-invalid={Boolean(phoneError)}
+              aria-describedby={phoneError ? "phone-error" : undefined}
             />
+            {phoneError && <p id="phone-error" role="alert" className="text-sm font-semibold text-destructive">{phoneError}</p>}
           </div>
 
           <label className="flex min-h-11 items-center gap-3 text-sm font-semibold text-foreground">
@@ -119,13 +149,13 @@ function WelcomePage() {
             Lembrar meu nome
           </label>
 
-          <button
+          <Button
             type="submit"
             disabled={!hydrated}
             className="min-h-13 w-full rounded-full bg-primary px-6 text-base font-bold text-primary-foreground shadow-soft transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-60"
           >
             Ver o cardápio 🍰
-          </button>
+          </Button>
         </form>
       </div>
     </main>

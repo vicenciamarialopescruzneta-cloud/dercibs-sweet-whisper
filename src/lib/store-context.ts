@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react";
 import type { SizeId } from "@/lib/constants";
+import type { DeliveryLocation } from "@/lib/delivery-location";
 
 export interface CartItem {
   key: string;
@@ -24,6 +25,9 @@ export interface StoreValue {
   customer: Customer | null;
   setCustomer: (c: Customer) => void;
   clearCustomer: () => void;
+  deliveryLocation: DeliveryLocation | null;
+  setDeliveryLocation: (location: DeliveryLocation) => boolean;
+  clearDeliveryLocation: () => boolean;
   items: CartItem[];
   itemCount: number;
   total: number;

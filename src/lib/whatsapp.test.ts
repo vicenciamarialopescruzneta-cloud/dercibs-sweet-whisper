@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { SIZES, WHATSAPP_NUMBER, formatBRL } from "./constants";
 import { buildOrderMessage, buildContactMessage, buildWhatsAppUrl, validateOrder } from "./whatsapp";
 import type { CartItem } from "./store";
+import { emptyDeliveryLocation } from "./delivery-location";
 
 function item(name: string, sizeId: "200" | "250", quantity: number, categoryName = "Bolo no Pote"): CartItem {
   const size = SIZES.find((s) => s.id === sizeId);
@@ -12,6 +13,22 @@ function item(name: string, sizeId: "200" | "250", quantity: number, categoryNam
 const maria = { name: "Maria", phone: "", remember: true };
 
 describe("WhatsApp order invariants", () => {
+  it("adds the confirmed customer address when authorized without altering the order total", () => {
+    const location = { ...emptyDeliveryLocation(), address: "Rua das Flores, 19", city: "São Luís", neighborhood: "Centro", reference: "Ao lado da praça", shareWithOrder: true };
+    const message = buildOrderMessage(maria, [item("Chocolate", "200", 2)], 20, location);
+    assert.ok(message.includes(location.address));
+    assert.ok(message.includes(location.city));
+    assert.ok(message.includes(location.neighborhood));
+    assert.ok(message.includes(location.reference));
+    assert.ok(message.includes(formatBRL(20)));
+    assert.equal(new URL(buildWhatsAppUrl(message)).searchParams.get("text"), message);
+  });
+  it("does not disclose a saved customer address if sharing was denied", () => {
+    const location = { ...emptyDeliveryLocation(), address: "Rua Privada, 19", city: "São Luís" };
+    const message = buildOrderMessage(maria, [item("Chocolate", "200", 1)], 10, location);
+    assert.equal(message.includes(location.address), false);
+    assert.equal(message.includes(location.city), false);
+  });
   it("prices remain 200ml = 10 and 250ml = 12", () => {
     assert.deepEqual(SIZES.map(({ id, price }) => [id, price]), [["200", 10], ["250", 12]]);
   });
