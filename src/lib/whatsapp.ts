@@ -1,5 +1,6 @@
 import { BRAND_NAME, STORE_LOCATION, WHATSAPP_NUMBER, formatBRL } from "@/lib/constants";
 import type { CartItem, Customer } from "@/lib/store";
+import { buildDeliveryLocationLines, type DeliveryLocation } from "@/lib/delivery-location";
 
 const DIVIDER = "━━━━━━━━━━━━━━";
 
@@ -23,6 +24,7 @@ export function buildOrderMessage(
   customer: Customer | null,
   items: CartItem[],
   total: number,
+  deliveryLocation?: DeliveryLocation | null,
 ) {
   const lines: string[] = [];
   lines.push("Olá, Dercibs Doces! 💕");
@@ -44,6 +46,11 @@ export function buildOrderMessage(
   lines.push("");
   lines.push(`💰 TOTAL DO PEDIDO: ${formatBRL(total)}`);
   lines.push("");
+  const deliveryLines = buildDeliveryLocationLines(deliveryLocation);
+  if (deliveryLines.length > 0) {
+    lines.push(...deliveryLines);
+    lines.push("");
+  }
   lines.push("📍 RETIRADA E LOCALIZAÇÃO");
   if (STORE_LOCATION.address) {
     lines.push(STORE_LOCATION.address);

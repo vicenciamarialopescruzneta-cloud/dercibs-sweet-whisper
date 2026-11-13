@@ -32,7 +32,7 @@ export const Route = createFileRoute("/carrinho")({
 });
 
 function CartPage() {
-  const { customer, hydrated, items, total, itemCount, increment, decrement, removeItem } =
+  const { customer, hydrated, items, total, itemCount, increment, decrement, removeItem, deliveryLocation } =
     useStore();
   const navigate = useNavigate();
 
@@ -159,7 +159,7 @@ function CartPage() {
               className="mt-3 min-h-13 w-full rounded-full bg-primary px-6 text-base font-bold text-primary-foreground shadow-soft transition-transform hover:scale-[1.02] active:scale-95"
             >
               <a
-                href={buildWhatsAppUrl(buildOrderMessage(customer, items, total))}
+                href={buildWhatsAppUrl(buildOrderMessage(customer, items, total, deliveryLocation))}
                 onClick={handleSend}
                 target="_blank"
                 rel="noopener noreferrer"
