@@ -15,3 +15,5 @@
 - Store address and maps links remain nullable until confirmed, so contact surfaces request location rather than publishing invented details.
 - Do not register push workers or claim notification activation before a real provider connection and durable opt-in/scheduling are implemented; the declined connection leaves that work pending.
 - Keep focused business-rule tests beside the WhatsApp helpers, using node:test and node:assert through Bun to avoid extra test dependencies and missing Bun-specific TypeScript declarations.
+- Store confirmed optional customer delivery location independently in the existing store and local device storage; include it in orders only with explicit sharing consent, so registration never depends on GPS and no continuous tracking or external address lookup occurs.
+- Keep welcome validation and the cancellable five-second navigation timer in a browser-safe helper; this makes the loading duration testable without modifying the original menu or authentication.
