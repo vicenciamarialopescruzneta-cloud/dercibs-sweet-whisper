@@ -22,20 +22,23 @@ export function normalizeDeliveryLocation(value: unknown): DeliveryLocation | nu
   const raw = value as Record<string, unknown>;
   const text = (key: string, limit: number) => typeof raw[key] === "string" ? raw[key].trim().slice(0, limit) : "";
   let coordinates: DeliveryCoordinates | null = null;
-  if (raw.coordinates && typeof raw.coordinates === "object") {
-    const point = raw.coordinates as Record<string, unknown>;
-    if (typeof point.latitude === "number" && Number.isFinite(point.latitude) && Math.abs(point.latitude) <= 90 &&
-      typeof point.longitude === "number" && Number.isFinite(point.longitude) && Math.abs(point.longitude) <= 180) {
+  if (raw["coordinates"] && typeof raw["coordinates"] === "object") {
+    const point = raw["coordinates"] as Record<string, unknown>;
+    const latitude = point["latitude"];
+    const longitude = point["longitude"];
+    const accuracy = point["accuracy"];
+    if (typeof latitude === "number" && Number.isFinite(latitude) && Math.abs(latitude) <= 90 &&
+      typeof longitude === "number" && Number.isFinite(longitude) && Math.abs(longitude) <= 180) {
       coordinates = {
-        latitude: point.latitude,
-        longitude: point.longitude,
-        accuracy: typeof point.accuracy === "number" && Number.isFinite(point.accuracy) && point.accuracy >= 0 ? point.accuracy : null,
+        latitude,
+        longitude,
+        accuracy: typeof accuracy === "number" && Number.isFinite(accuracy) && accuracy >= 0 ? accuracy : null,
       };
     }
   }
   const location: DeliveryLocation = {
     address: text("address", 180), city: text("city", 80), neighborhood: text("neighborhood", 80), reference: text("reference", 180),
-    coordinates, shareWithOrder: raw.shareWithOrder === true,
+    coordinates, shareWithOrder: raw["shareWithOrder"] === true,
   };
   return location.address || coordinates ? location : null;
 }
